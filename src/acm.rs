@@ -1,5 +1,5 @@
+use crate::role::{Effect, Role};
 use crate::trie::Trie;
-use crate::role::{Role, Effect};
 
 #[derive(Debug)]
 pub struct ACM {

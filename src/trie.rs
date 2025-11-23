@@ -21,24 +21,21 @@ impl TrieNode {
     }
 
     pub(crate) fn default() -> Self {
-        TrieNode::new(
-            Glob::new(WILDCARD).unwrap().compile_matcher(),
-            WILDCARD,
-        )
+        TrieNode::new(Glob::new(WILDCARD).unwrap().compile_matcher(), WILDCARD)
     }
 
     pub(crate) fn insert_segment(&mut self, segment_pattern: &str) -> &mut TrieNode {
         // exacto knife
-        if let Some(idx) = self.children.iter()
+        if let Some(idx) = self
+            .children
+            .iter()
             .position(|c| c.raw_pattern.as_str() == segment_pattern)
         {
             return &mut self.children[idx];
         }
 
         // lets build our flair
-        let pattern = Glob::new(segment_pattern)
-            .unwrap()
-            .compile_matcher();
+        let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
         let raw_pattern = segment_pattern;
 
         self.children.push(TrieNode::new(pattern, raw_pattern));

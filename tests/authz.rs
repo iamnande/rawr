@@ -1,4 +1,4 @@
-use authz::{ACM, Role, Policy, Effect};
+use authz::{ACM, Effect, Policy, Role};
 
 #[test]
 fn test_role_policy_application() {
@@ -11,48 +11,28 @@ fn test_role_policy_application() {
         })
         .with_policy(Policy {
             effect: Effect::Allow,
-            actions: vec![
-                "networks:GetVLAN".into(),
-            ],
-            resources: vec![
-                "*".into(),
-            ],
+            actions: vec!["networks:GetVLAN".into()],
+            resources: vec!["*".into()],
         })
         .with_policy(Policy {
             effect: Effect::Allow,
-            actions: vec![
-                "networks:UpdateVLAN".into(),
-            ],
-            resources: vec![
-                "VLAN-20".into(),
-            ],
+            actions: vec!["networks:UpdateVLAN".into()],
+            resources: vec!["VLAN-20".into()],
         })
         .with_policy(Policy {
             effect: Effect::Allow,
-            actions: vec![
-                "networks:*".into(),
-            ],
-            resources: vec![
-                "VLAN-70".into(),
-            ],
+            actions: vec!["networks:*".into()],
+            resources: vec!["VLAN-70".into()],
         })
         .with_policy(Policy {
             effect: Effect::Allow,
-            actions: vec![
-                "networks:AddVLANTag".into(),
-            ],
-            resources: vec![
-                "nick/lab/*".into(),
-            ],
+            actions: vec!["networks:AddVLANTag".into()],
+            resources: vec!["nick/lab/*".into()],
         })
         .with_policy(Policy {
             effect: Effect::Allow,
-            actions: vec![
-                "calendar:Get*".into(),
-            ],
-            resources: vec![
-                "laura/*".into(),
-            ],
+            actions: vec!["calendar:Get*".into()],
+            resources: vec!["laura/*".into()],
         });
 
     acm.apply_role(&role);
