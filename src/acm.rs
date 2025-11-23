@@ -7,6 +7,12 @@ pub struct ACM {
     deny: Trie,
 }
 
+impl Default for ACM {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ACM {
     pub fn new() -> Self {
         ACM {
