@@ -27,5 +27,5 @@ jobs:
       run: cargo build --all-targets
 
     - name: Test
-      run: cargo test --all --quiet
+      run: cargo test --all
 

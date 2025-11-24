@@ -33,7 +33,7 @@ mod acm_tests {
         let mut acm = ACM::new();
         acm.allow("networks:*", "VLAN-1");
         acm.deny("networks:DeleteVLAN", "VLAN-1");
-        
+
         assert!(acm.authorized("networks:GetVLAN", "VLAN-1"));
         assert!(acm.authorized("networks:UpdateVLAN", "VLAN-1"));
         assert!(!acm.authorized("networks:DeleteVLAN", "VLAN-1"));
@@ -44,7 +44,7 @@ mod acm_tests {
         let mut acm = ACM::new();
         acm.allow("networks:*", "VLAN-1");
         acm.allow("calendar:Get*", "laura/*");
-        
+
         assert!(acm.authorized("networks:GetVLAN", "VLAN-1"));
         assert!(acm.authorized("networks:UpdateVLAN", "VLAN-1"));
         assert!(acm.authorized("networks:DeleteVLAN", "VLAN-1"));
@@ -59,7 +59,7 @@ mod acm_tests {
         acm.allow("networks:GetVLAN", "*");
         acm.allow("networks:UpdateVLAN", "VLAN-*");
         acm.allow("networks:DeleteVLAN", "nick/lab/*");
-        
+
         assert!(acm.authorized("networks:GetVLAN", "VLAN-1"));
         assert!(acm.authorized("networks:GetVLAN", "VLAN-999"));
         assert!(acm.authorized("networks:GetVLAN", "anything"));
@@ -76,7 +76,7 @@ mod acm_tests {
         let mut acm = ACM::new();
         acm.allow("storage:Read", "projects/*/buckets/*/objects/*");
         acm.allow("storage:Write", "projects/myproject/buckets/*");
-        
+
         assert!(acm.authorized("storage:Read", "projects/p1/buckets/b1/objects/o1"));
         assert!(acm.authorized("storage:Read", "projects/p2/buckets/b2/objects/o2"));
         assert!(!acm.authorized("storage:Read", "projects/p1/buckets/b1"));
@@ -89,7 +89,7 @@ mod acm_tests {
         let mut acm = ACM::new();
         acm.allow("admin:*", "root");
         acm.allow("user:Read", "profile");
-        
+
         assert!(acm.authorized("admin:DoAnything", "root"));
         assert!(acm.authorized("user:Read", "profile"));
         assert!(!acm.authorized("user:Write", "profile"));
@@ -118,7 +118,7 @@ mod role_tests {
                 vec!["action2".into()],
                 vec!["resource2".into()],
             ));
-        
+
         assert_eq!(role.policies.len(), 2);
         matches!(role.policies[0].effect, Effect::Allow);
         matches!(role.policies[1].effect, Effect::Deny);
@@ -134,16 +134,15 @@ mod role_tests {
 
     #[test]
     fn test_role_with_multiple_actions_and_resources() {
-        let role = Role::new("MultiRole", "Test")
-            .with_policy(Policy {
-                effect: Effect::Allow,
-                actions: vec!["action1".into(), "action2".into()],
-                resources: vec!["res1".into(), "res2".into()],
-            });
-        
+        let role = Role::new("MultiRole", "Test").with_policy(Policy {
+            effect: Effect::Allow,
+            actions: vec!["action1".into(), "action2".into()],
+            resources: vec!["res1".into(), "res2".into()],
+        });
+
         let mut acm = ACM::new();
         acm.apply_role(&role);
-        
+
         assert!(acm.authorized("action1", "res1"));
         assert!(acm.authorized("action1", "res2"));
         assert!(acm.authorized("action2", "res1"));
@@ -240,13 +239,12 @@ mod integration_tests {
     #[test]
     fn test_multiple_roles() {
         let mut acm = ACM::new();
-        
-        let network_admin = Role::new("NetworkAdmin", "Network admin")
-            .with_policy(Policy::allow(
-                vec!["networks:*".into()],
-                vec!["VLAN-*".into()],
-            ));
-        
+
+        let network_admin = Role::new("NetworkAdmin", "Network admin").with_policy(Policy::allow(
+            vec!["networks:*".into()],
+            vec!["VLAN-*".into()],
+        ));
+
         let storage_admin = Role::new("StorageAdmin", "Storage admin")
             .with_policy(Policy::allow(
                 vec!["storage:*".into()],
@@ -256,19 +254,19 @@ mod integration_tests {
                 vec!["storage:Delete".into()],
                 vec!["buckets/production/*".into()],
             ));
-        
+
         acm.apply_role(&network_admin);
         acm.apply_role(&storage_admin);
-        
+
         assert!(acm.authorized("networks:GetVLAN", "VLAN-1"));
         assert!(acm.authorized("networks:UpdateVLAN", "VLAN-999"));
-        
+
         assert!(acm.authorized("storage:Read", "buckets/test"));
         assert!(acm.authorized("storage:Write", "buckets/test"));
         assert!(acm.authorized("storage:Delete", "buckets/test"));
         assert!(!acm.authorized("storage:Delete", "buckets/production/test"));
         assert!(!acm.authorized("storage:Read", "buckets/production/test"));
-        
+
         assert!(!acm.authorized("networks:GetVLAN", "buckets/test"));
         assert!(!acm.authorized("storage:Read", "VLAN-1"));
     }
@@ -285,9 +283,9 @@ mod integration_tests {
                 vec!["action:Specific".into()],
                 vec!["resource".into()],
             ));
-        
+
         acm.apply_role(&role);
-        
+
         assert!(!acm.authorized("action:Specific", "resource"));
         assert!(acm.authorized("action:Other", "resource"));
     }
@@ -297,18 +295,18 @@ mod integration_tests {
         let mut acm = ACM::new();
         acm.allow("*", "*");
         acm.deny("admin:*", "sensitive/*");
-        
+
         assert!(acm.authorized("any", "resource"));
         assert!(acm.authorized("user", "profile"));
-        
+
         acm.allow("*:*", "*");
         assert!(acm.authorized("user:Read", "profile"));
-        
+
         assert!(acm.authorized("admin:Delete", "sensitive"));
         assert!(!acm.authorized("admin:Delete", "sensitive/data"));
         assert!(!acm.authorized("admin:Read", "sensitive/secret"));
         assert!(acm.authorized("admin:Read", "public"));
-        
+
         acm.allow("*:*", "*/*");
         assert!(acm.authorized("any:action", "any/resource"));
         assert!(!acm.authorized("any:action", "any/nested/resource/path"));
@@ -366,7 +364,7 @@ mod json_tests {
             r#"not json at all"#,
             r#"{"roles": null}"#,
         ];
-        
+
         for json_data in test_cases {
             let result = ACM::from_json(json_data);
             assert!(result.is_err(), "expected error for: {}", json_data);
@@ -403,7 +401,7 @@ mod json_tests {
           ]
         }
         "#;
-        
+
         let acm = ACM::from_json(json_data).expect("should parse multiple roles");
         assert!(acm.authorized("action1", "resource1"));
         assert!(acm.authorized("action2", "resource2"));

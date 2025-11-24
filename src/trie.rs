@@ -1,11 +1,13 @@
 use globset::{Glob, GlobMatcher};
 
 const WILDCARD: &str = "*";
+const ROOT_PATTERN: &str = ".";
 
 #[derive(Debug)]
 pub(crate) struct TrieNode {
-    children: Vec<TrieNode>,
-    pattern: GlobMatcher,
+    literal_children: Vec<(String, TrieNode)>,
+    glob_children: Vec<TrieNode>,
+    pattern: Option<GlobMatcher>,
     raw_pattern: String,
     terminal: bool,
 }
@@ -13,33 +15,53 @@ pub(crate) struct TrieNode {
 impl TrieNode {
     pub(crate) fn new(pattern: GlobMatcher, raw_pattern: &str) -> Self {
         TrieNode {
-            children: Vec::new(),
-            pattern,
+            literal_children: Vec::new(),
+            glob_children: Vec::new(),
+            pattern: Some(pattern),
             raw_pattern: raw_pattern.to_string(),
             terminal: false,
         }
     }
 
     pub(crate) fn default() -> Self {
-        TrieNode::new(Glob::new(WILDCARD).unwrap().compile_matcher(), WILDCARD)
+        TrieNode {
+            literal_children: Vec::new(),
+            glob_children: Vec::new(),
+            pattern: None,
+            raw_pattern: ROOT_PATTERN.to_string(),
+            terminal: false,
+        }
     }
 
     pub(crate) fn insert_segment(&mut self, segment_pattern: &str) -> &mut TrieNode {
-        // exacto knife
-        if let Some(idx) = self
-            .children
-            .iter()
-            .position(|c| c.raw_pattern.as_str() == segment_pattern)
-        {
-            return &mut self.children[idx];
+        if !segment_pattern.contains(WILDCARD) {
+            match self
+                .literal_children
+                .binary_search_by(|(key, _)| key.as_str().cmp(segment_pattern))
+            {
+                Ok(idx) => &mut self.literal_children[idx].1,
+                Err(idx) => {
+                    let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
+                    let new_node = TrieNode::new(pattern, segment_pattern);
+                    self.literal_children
+                        .insert(idx, (segment_pattern.to_string(), new_node));
+                    &mut self.literal_children[idx].1
+                }
+            }
+        } else {
+            if let Some(idx) = self
+                .glob_children
+                .iter()
+                .position(|c| c.raw_pattern.as_str() == segment_pattern)
+            {
+                return &mut self.glob_children[idx];
+            }
+
+            let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
+            self.glob_children
+                .push(TrieNode::new(pattern, segment_pattern));
+            self.glob_children.last_mut().unwrap()
         }
-
-        // lets build our flair
-        let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
-        let raw_pattern = segment_pattern;
-
-        self.children.push(TrieNode::new(pattern, raw_pattern));
-        self.children.last_mut().unwrap()
     }
 
     // this is the real workhorse. like imagine if spirit _did_ break; just
@@ -55,8 +77,20 @@ impl TrieNode {
         let remaining = &segments[1..];
 
         // uhm, like - do you even work here?
-        for child in &self.children {
-            if child.pattern.is_match(current) && child.contains(remaining) {
+        if let Ok(idx) = self
+            .literal_children
+            .binary_search_by(|(key, _)| key.as_str().cmp(current))
+            && self.literal_children[idx].1.contains(remaining)
+        {
+            return true;
+        }
+
+        // you can't triple stamp a double stamp!
+        for glob_child in &self.glob_children {
+            if let Some(ref pattern) = glob_child.pattern
+                && pattern.is_match(current)
+                && glob_child.contains(remaining)
+            {
                 return true;
             }
         }
