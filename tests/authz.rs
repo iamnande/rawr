@@ -54,6 +54,38 @@ fn test_role_policy_application() {
             action, resource, expected, granted
         );
         assert_eq!(granted, expected, "{}", message);
-        println!("{}", message);
     }
+}
+
+#[test]
+fn test_load_acm_from_valid_json() {
+    let json_data = include_str!("./testdata/valid.json");
+    let acm = ACM::from_json(json_data).expect("failed to load ACM from valid.json");
+
+    let cases = vec![
+        ("networks:GetVLAN", "VLAN-50", true),
+        ("networks:UpdateVLAN", "VLAN-20", true),
+        ("networks:UpdateVLAN", "VLAN-30", false),
+        ("networks:GetVLAN", "VLAN-1", false),
+        ("networks:DeleteVLAN", "VLAN-70", true),
+        ("networks:AddVLANTag", "nick/lab/VLAN-70", true),
+        ("calendar:GetCalendar", "laura/shared-family-calendar", true),
+    ];
+
+    for (action, resource, expected) in cases {
+        let granted = acm.authorized(action, resource);
+        let message = format!(
+            "[AUTHZ] action: {}, resource: {}, expected: {}, granted: {}",
+            action, resource, expected, granted
+        );
+        assert_eq!(granted, expected, "{}", message);
+    }
+}
+
+#[test]
+fn test_load_acm_from_invalid_json() {
+    let json_data = include_str!("./testdata/invalid.json");
+    let result = ACM::from_json(json_data);
+    assert!(result.is_err(), "expected error when loading invalid.json");
+    println!("correctly rejected invalid.json: {:?}", result.err());
 }

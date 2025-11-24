@@ -3,9 +3,9 @@
 > righteous authorization with rust, like the hipster gods intended
 
 **rawr** is a blazing-fast, zero-nonsense authorization library for Rust
-that will leave your access control game **dripping** with security rizz. 
+that will leave your access control game **dripping** with security rizz.
 
-It's built on a trie-based pattern matching system with glob support, this bad 
+It's built on a trie-based pattern matching system with glob support, this bad
 boy handles your Allow/Deny policies like a champ.
 
 ## peep the stats
@@ -116,17 +116,17 @@ fn main() {
 
 ## fit check
 
-rawr uses a **trie data structure** to store and match action/resource 
+rawr uses a **trie data structure** to store and match action/resource
 patterns. When you call `authorized()`, it:
 
 1. Splits the action by `:` and the resource by `/` to create segments
 2. Checks the deny trie first (because explicit denies win)
 3. If not denied, checks the allow trie
-4. Uses glob pattern matching for each segment (so `*` matches anything, 
+4. Uses glob pattern matching for each segment (so `*` matches anything,
 `foo/*` matches `foo/bar`, etc.)
 
 This means your authorization checks are **O(n)** where n is the depth of your
-action/resource path, not the number of policies. That's what we call 
+action/resource path, not the number of policies. That's what we call
 **efficient**, my dude.
 
 ## API Reference
@@ -136,6 +136,7 @@ action/resource path, not the number of policies. That's what we call
 An access control model with `Allow`/`Deny` role policies.
 
 - `ACM::new()` - Create a new ACM
+- `ACM::from_json(json_data)` - Load an ACM from JSON data containing roles
 - `acm.apply_role(role)` - Apply a role's policies to the ACM
 - `acm.authorized(action, resource)` - Check if an action on a resource is authorized
 - `acm.allow(action, resource)` - Directly allow an action/resource (low-level)
@@ -154,6 +155,33 @@ A policy with an effect (Allow/Deny), actions, and resources.
 
 - `Policy::allow(actions, resources)` - Create an Allow policy
 - `Policy::deny(actions, resources)` - Create a Deny policy
+
+### JSON Derulo
+
+When loading from JSON, the format should be:
+
+```json
+{
+  "roles": [
+    {
+      "name": "RoleName",
+      "description": "Role description",
+      "policies": [
+        {
+          "effect": "allow",
+          "actions": ["action:pattern", "*"],
+          "resources": ["resource/path", "*"]
+        },
+        {
+          "effect": "deny",
+          "actions": ["action:*"],
+          "resources": ["resource/*"]
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## code community
 

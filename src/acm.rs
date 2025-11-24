@@ -1,5 +1,6 @@
 use crate::role::{Effect, Role};
 use crate::trie::Trie;
+use serde::Deserialize;
 
 #[derive(Debug)]
 pub struct ACM {
@@ -68,5 +69,36 @@ impl ACM {
                 }
             }
         }
+    }
+
+    /// ```json
+    /// {
+    ///   "roles": [
+    ///     {
+    ///       "name": "Admin",
+    ///       "description": "Administrator role",
+    ///       "policies": [
+    ///         {
+    ///           "effect": "Allow",
+    ///           "actions": ["*"],
+    ///           "resources": ["*"]
+    ///         }
+    ///       ]
+    ///     }
+    ///   ]
+    /// }
+    /// ```
+    pub fn from_json(json_data: &str) -> Result<Self, serde_json::Error> {
+        #[derive(Deserialize)]
+        struct ACMData {
+            roles: Vec<Role>,
+        }
+
+        let data: ACMData = serde_json::from_str(json_data)?;
+        let mut acm = ACM::new();
+        for role in data.roles {
+            acm.apply_role(&role);
+        }
+        Ok(acm)
     }
 }
