@@ -133,7 +133,7 @@ action/resource path, not the number of policies. That's what we call
 
 ### `ACM`
 
-An access control model with `Allow`/`Deny` role policies.
+An access control model with `allow`/`deny` role policies.
 
 - `ACM::new()` - Create a new ACM
 - `ACM::from_json(json_data)` - Load an ACM from JSON data containing roles
@@ -151,10 +151,10 @@ A role with a name, description, and policies.
 
 ### `Policy`
 
-A policy with an effect (Allow/Deny), actions, and resources.
+A policy with an effect (`allow`/`deny`), actions, and resources.
 
-- `Policy::allow(actions, resources)` - Create an Allow policy
-- `Policy::deny(actions, resources)` - Create a Deny policy
+- `Policy::allow(actions, resources)` - Create an `allow` policy
+- `Policy::deny(actions, resources)` - Create a `deny` policy
 
 ### JSON Derulo
 

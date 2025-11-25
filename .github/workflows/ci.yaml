@@ -17,15 +17,5 @@ jobs:
         profile: minimal
         override: true
 
-    - name: Lint
-      run: cargo clippy --all-targets --all-features -- -D warnings
-
-    - name: Format
-      run: cargo fmt --all -- --check
-
-    - name: Build
-      run: cargo build --all-targets
-
-    - name: Test
-      run: cargo test --all
-
+    - name: Checks
+      run: make clean ci

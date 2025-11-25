@@ -2,6 +2,9 @@ use crate::role::{Effect, Role};
 use crate::trie::Trie;
 use serde::Deserialize;
 
+const ACTION_SEPARATOR: &str = ":";
+const RESOURCE_SEPARATOR: &str = "/";
+
 #[derive(Debug)]
 pub struct ACM {
     allow: Trie,
@@ -23,11 +26,11 @@ impl ACM {
     }
 
     fn split_action(action: &str) -> Vec<&str> {
-        action.split(':').collect()
+        action.split(ACTION_SEPARATOR).collect()
     }
 
     fn split_resource_path(resource_path: &str) -> Vec<&str> {
-        resource_path.split('/').collect()
+        resource_path.split(RESOURCE_SEPARATOR).collect()
     }
 
     pub fn allow(&mut self, action: &str, resource_path: &str) {
@@ -79,7 +82,7 @@ impl ACM {
     ///       "description": "Administrator role",
     ///       "policies": [
     ///         {
-    ///           "effect": "Allow",
+    ///           "effect": "allow",
     ///           "actions": ["*"],
     ///           "resources": ["*"]
     ///         }
