@@ -1,0 +1,10 @@
+[package]
+name = "rawr-pip"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rawr-acm = { path = "../rawr-acm" }
+rawr-pap = { path = "../rawr-pap" }
+serde_json = "1.0"
+svix-ksuid = "^0.8.0"

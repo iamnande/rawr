@@ -1,0 +1,8 @@
+[package]
+name = "rawr-acm"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rawr-pap = { path = "../rawr-pap" }
+globset = "0.4"
