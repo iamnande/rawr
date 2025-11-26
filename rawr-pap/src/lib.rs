@@ -53,3 +53,36 @@ impl Policy {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_role_creation() {
+        let role = Role::new("TestRole", "Description");
+        assert_eq!(role.name, "TestRole");
+        assert_eq!(role.description, "Description");
+        assert_eq!(role.policies.len(), 0);
+    }
+
+    #[test]
+    fn test_role_with_allow_policy() {
+        let role = Role::new("TestRole", "Description").with_policy(Policy::allow(
+            vec!["action".to_string()],
+            vec!["resource".to_string()],
+        ));
+        assert_eq!(role.policies.len(), 1);
+        assert!(matches!(role.policies[0].effect, Effect::Allow));
+    }
+
+    #[test]
+    fn test_role_with_deny_policy() {
+        let role = Role::new("TestRole", "Description").with_policy(Policy::deny(
+            vec!["action".to_string()],
+            vec!["resource".to_string()],
+        ));
+        assert_eq!(role.policies.len(), 1);
+        assert!(matches!(role.policies[0].effect, Effect::Deny));
+    }
+}

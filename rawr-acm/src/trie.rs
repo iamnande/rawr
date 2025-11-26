@@ -89,9 +89,15 @@ impl TrieNode {
         for glob_child in &self.glob_children {
             if let Some(ref pattern) = glob_child.pattern
                 && pattern.is_match(current)
-                && glob_child.contains(remaining)
             {
-                return true;
+                // ugh, that's so fetch
+                if glob_child.raw_pattern == WILDCARD && glob_child.terminal {
+                    return true;
+                }
+
+                if glob_child.contains(remaining) {
+                    return true;
+                }
             }
         }
 
