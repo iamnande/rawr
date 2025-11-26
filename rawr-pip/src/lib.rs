@@ -18,7 +18,6 @@ pub trait PolicyLoader {
     fn load_from_str(&self, data: &str) -> Result<Role, serde_json::Error>;
 }
 
-/// Apply a single role's policies to an ACM
 pub fn apply_role(acm: &mut Acm, role: &Role) {
     for policy in &role.policies {
         for action in &policy.actions {
@@ -32,7 +31,6 @@ pub fn apply_role(acm: &mut Acm, role: &Role) {
     }
 }
 
-/// Apply multiple roles' policies to an ACM
 pub fn apply_roles(acm: &mut Acm, roles: &[Role]) {
     for role in roles {
         apply_role(acm, role);
