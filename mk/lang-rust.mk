@@ -16,12 +16,15 @@ build: ## build all targets
 
 .PHONY: test
 test: ## run all tests
-	@cargo test --all
+	@cargo test --all -- --no-capture
+
+.PHONY: bench 
+bench: ## run benchmark tests
+	@cargo bench
 
 .PHONY: clean
 clean: ## clean build artifacts
 	@cargo clean
 
 .PHONY: ci
-ci: lint format build test ## run all CI checks
-
+ci: lint format build test bench ## run all CI checks

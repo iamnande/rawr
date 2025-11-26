@@ -1,4 +1,3 @@
-use rawr_pap::{Effect, Role};
 mod trie;
 
 use trie::Trie;
@@ -46,20 +45,7 @@ impl Acm {
         self.deny.insert(&segments);
     }
 
-    pub fn apply_role(&mut self, role: &Role) {
-        for policy in &role.policies {
-            for action in &policy.actions {
-                for resource in &policy.resources {
-                    match policy.effect {
-                        Effect::Allow => self.allow(action, resource),
-                        Effect::Deny => self.deny(action, resource),
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn authorized(&self, action: &str, resource_path: &str) -> bool {
+    pub fn enforce(&self, action: &str, resource_path: &str) -> bool {
         // cut my life into pieces
         let mut segments = Self::split_action(action);
         segments.extend(Self::split_resource_path(resource_path));
@@ -71,5 +57,27 @@ impl Acm {
 
         // okay, now check "the list"
         self.allow.contains(&segments)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_allow_and_enforce() {
+        let mut acm = Acm::new();
+        acm.allow("action:Get", "resource/path");
+        assert!(acm.enforce("action:Get", "resource/path"));
+        assert!(!acm.enforce("action:Get", "other/path"));
+    }
+
+    #[test]
+    fn test_deny_overrides_allow() {
+        let mut acm = Acm::new();
+        acm.allow("action:*", "resource/*");
+        acm.deny("action:Delete", "resource/sensitive");
+        assert!(acm.enforce("action:Get", "resource/normal"));
+        assert!(!acm.enforce("action:Delete", "resource/sensitive"));
     }
 }

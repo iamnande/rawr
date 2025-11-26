@@ -1,0 +1,33 @@
+{
+  "roles": [
+    {
+      "name": "ReadOnly",
+      "description": "Read-only access to all resources.",
+      "policies": [
+        {
+          "effect": "allow",
+          "actions": ["*:Get*", "*:List*"],
+          "resources": ["*"]
+        }
+      ]
+    },
+    {
+      "name": "NetworkAdmin",
+      "description": "Full network operations access.",
+      "policies": [
+        {
+          "effect": "deny",
+          "actions": ["network:DeleteVLAN"],
+          "resources": ["mhq/VLAN-1"]
+        },
+        {
+          "effect": "allow",
+          "actions": ["network:*"],
+          "resources": ["*"]
+        }
+      ]
+    }
+  ]
+}
+
+

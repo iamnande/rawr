@@ -1,12 +1,16 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PipError {
     AcmNotFound(String),
+    InvalidAcmFormat(String),
 }
 
 impl std::fmt::Display for PipError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PipError::AcmNotFound(msg) => write!(f, "access control model not found: {}", msg),
+            PipError::AcmNotFound(err) => write!(f, "access control model not found: {}", err),
+            PipError::InvalidAcmFormat(err) => {
+                write!(f, "access control model is malformed: {}", err)
+            }
         }
     }
 }
