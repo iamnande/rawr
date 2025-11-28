@@ -1,5 +1,5 @@
-use std::fs;
 use std::path::{Path, PathBuf};
+use tokio::fs;
 
 use svix_ksuid::Ksuid;
 
@@ -36,27 +36,22 @@ impl PolicyLoader for JsonPolicyLoader {
 }
 
 #[derive(serde::Deserialize)]
-struct PrincipalData {
+struct RoleAssignmentsData {
     roles: Vec<Role>,
 }
 
 impl AcmLoader for JsonPolicyLoader {
-    fn load(&self, principal_ksuid: &Ksuid) -> Result<Acm, PipError> {
-        let file_path = self.base_dir.join(format!("{}.json", principal_ksuid));
+    async fn load(&self, _account_ksuid: &Ksuid, principal_ksuid: &Ksuid) -> Result<Acm, PipError> {
+        let file_path = self.base_dir.join(format!("{principal_ksuid}.json"));
 
-        let contents = fs::read_to_string(&file_path).map_err(|e| {
+        let contents = fs::read_to_string(&file_path).await.map_err(|e| {
             PipError::AcmNotFound(format!("failed to read file {:?}: {}", file_path, e))
         })?;
 
-        let roles: Vec<Role> = serde_json::from_str::<PrincipalData>(&contents)
+        let roles: Vec<Role> = serde_json::from_str::<RoleAssignmentsData>(&contents)
             .map(|pd| pd.roles)
-            .or_else(|_| {
-                serde_json::from_str(&contents).map_err(|e| {
-                    PipError::InvalidAcmFormat(format!(
-                        "failed to parse {:?} JSON: {}",
-                        file_path, e
-                    ))
-                })
+            .map_err(|e| {
+                PipError::InvalidAcmFormat(format!("failed to parse {:?} JSON: {}", file_path, e))
             })?;
 
         let mut acm = Acm::new();

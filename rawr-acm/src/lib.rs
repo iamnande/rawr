@@ -1,5 +1,7 @@
+mod config;
 mod trie;
 
+pub use config::AcmConfig;
 use trie::Trie;
 
 const ACTION_SEPARATOR: &str = ":";
@@ -33,22 +35,25 @@ impl Acm {
         resource_path.split(RESOURCE_SEPARATOR).collect()
     }
 
-    pub fn allow(&mut self, action: &str, resource_path: &str) {
+    pub fn get_segments<'a>(action: &'a str, resource_path: &'a str) -> Vec<&'a str> {
         let mut segments = Self::split_action(action);
         segments.extend(Self::split_resource_path(resource_path));
+        segments
+    }
+
+    pub fn allow(&mut self, action: &str, resource_path: &str) {
+        let segments = Self::get_segments(action, resource_path);
         self.allow.insert(&segments);
     }
 
     pub fn deny(&mut self, action: &str, resource_path: &str) {
-        let mut segments = Self::split_action(action);
-        segments.extend(Self::split_resource_path(resource_path));
+        let segments = Self::get_segments(action, resource_path);
         self.deny.insert(&segments);
     }
 
     pub fn enforce(&self, action: &str, resource_path: &str) -> bool {
         // cut my life into pieces
-        let mut segments = Self::split_action(action);
-        segments.extend(Self::split_resource_path(resource_path));
+        let segments = Self::get_segments(action, resource_path);
 
         // check the watch list
         if self.deny.contains(&segments) {

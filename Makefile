@@ -1,4 +1,10 @@
-# core
+# core .env configuration
+ifneq (,$(wildcard ./.env))
+	include .env
+	export
+endif
+
+# help me obi wan, you've abandoned the rebelion for so long
 .DEFAULT_GOAL := help
 WORKDIR       := $(shell pwd)
 SHELL         := /usr/bin/env bash
@@ -22,6 +28,7 @@ PROJECT_SLUG    := $(OWNER_NAME)-$(PROJECT_NAME)-$(PROJECT_VERSION)
 
 # modules
 include mk/lang-rust.mk
+include mk/environment.mk
 
 .PHONY: help
 help: ## available targets
@@ -35,4 +42,3 @@ help: ## available targets
 .PHONY: version
 version: ## display version
 	@echo $(PROJECT_VERSION)
-

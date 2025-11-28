@@ -11,7 +11,7 @@ boy handles your Allow/Deny policies like a champ.
 ## peep the stats
 
 rawr provides:
-- ⚡ **lightning-fast authorization checks** using a trie data structure (~3.6 
+- ⚡ **lightning-fast authorization checks** using a trie data structure (~4.8 
 million per second throughput)
 - 🎯 **glob pattern matching** for actions and resources
 - 🛡️ **role-based access control** with `allow`/`deny` policies
@@ -209,6 +209,39 @@ A concrete implementation that loads policies from JSON files.
 
 - `JsonPolicyLoader::new(base_dir)` - Create a loader that reads from a directory
 - `JsonPolicyLoader::default()` - Create a loader that reads from `testdata/` directory
+
+#### `PostgresPolicyLoader`
+
+A concrete implementation that loads policies from PostgreSQL.
+
+- `PostgresPolicyLoader::new(pool)` - Create a loader with a database connection pool
+
+**Setup:**
+
+1. Configure environment variables:
+   ```bash
+   export DB_HOST=localhost
+   export DB_PORT=5432
+   export DB_USER=rawr
+   export DB_PASSWORD=rawr
+   export DB_NAME=rawr
+   ```
+
+2. Run database migrations:
+   ```bash
+   make db-migrate
+   ```
+
+3. Use in your code:
+   ```rust
+   use rawr_db::create_pool_from_env;
+   use rawr_pip::PostgresPolicyLoader;
+   use rawr_pdp::{Decider, RawrDecider};
+   
+   let pool = create_pool_from_env().await?;
+   let loader = PostgresPolicyLoader::new(pool);
+   let decider = RawrDecider::new(Box::new(loader));
+   ```
 
 #### Utility Functions
 

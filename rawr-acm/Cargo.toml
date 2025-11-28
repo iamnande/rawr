@@ -4,4 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+envconfig = { workspace = true }
 globset = "0.4"
+
+rawr-config = { path = "../rawr-config" }

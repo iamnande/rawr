@@ -7,6 +7,9 @@ edition = "2024"
 serde = { workspace = true }
 serde_json = { workspace = true }
 svix-ksuid = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true }
 
 rawr-acm = { path = "../rawr-acm" }
 rawr-pap = { path = "../rawr-pap" }
+rawr-db = { path = "../rawr-db" }

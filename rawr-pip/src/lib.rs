@@ -1,16 +1,20 @@
+use svix_ksuid::Ksuid;
+
 use rawr_acm::Acm;
 use rawr_pap::{Effect, Role};
-use svix_ksuid::Ksuid;
 
 mod error;
 mod json;
+mod postgres;
 
 pub use error::PipError;
 pub use json::JsonPolicyLoader;
+pub use postgres::PostgresPolicyLoader;
 
 // NOTE(*): it's physically painful _not_ to write ACMLoader, but like - w/e
-pub trait AcmLoader {
-    fn load(&self, principal_ksuid: &Ksuid) -> Result<Acm, PipError>;
+#[allow(async_fn_in_trait)]
+pub trait AcmLoader: Send + Sync {
+    async fn load(&self, account_ksuid: &Ksuid, principal_ksuid: &Ksuid) -> Result<Acm, PipError>;
 }
 
 // TODO(nick): we should probably make this more generic, like eventually.

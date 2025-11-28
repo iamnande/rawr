@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 svix-ksuid = { workspace = true }
+lru = "0.12"
 
 rawr-acm = { path = "../rawr-acm" }
 rawr-pip = { path = "../rawr-pip" }
@@ -12,8 +13,10 @@ rawr-pip = { path = "../rawr-pip" }
 [dev-dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-rawr-pap = { path = "../rawr-pap" }
 criterion = { version = "0.7", features = ["html_reports"] }
+tokio = { workspace = true, features = ["rt", "macros"] }
+
+rawr-pap = { path = "../rawr-pap" }
 
 [[bench]]
 name = "enron"

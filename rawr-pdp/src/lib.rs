@@ -1,46 +1,55 @@
-use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-use rawr_acm::Acm;
+use lru::LruCache;
+use rawr_acm::{Acm, AcmConfig};
 use rawr_pip::AcmLoader;
 use svix_ksuid::Ksuid;
 
 mod error;
 pub use error::PdpError;
 
+#[allow(async_fn_in_trait)]
 pub trait Decider {
-    fn decide(
+    async fn decide(
         &self,
+        account_ksuid: &Ksuid,
         principal_ksuid: &Ksuid,
         action: &str,
         resource_path: &str,
     ) -> Result<bool, PdpError>;
 }
 
-pub struct RawrDecider {
-    acm_loader: Box<dyn AcmLoader>,
-    cache: Arc<RwLock<HashMap<Ksuid, Arc<Acm>>>>,
+pub struct RawrDecider<L: AcmLoader> {
+    acm_loader: L,
+    cache: Arc<RwLock<LruCache<Ksuid, Arc<Acm>>>>,
 }
 
-impl RawrDecider {
-    pub fn new(acm_loader: Box<dyn AcmLoader>) -> Self {
+impl<L: AcmLoader> RawrDecider<L> {
+    pub fn new(acm_loader: L) -> Self {
+        Self::with_config(acm_loader, AcmConfig::default())
+    }
+
+    pub fn with_config(acm_loader: L, config: AcmConfig) -> Self {
+        let max_size = std::num::NonZeroUsize::new(config.max_lru_size.max(1))
+            .unwrap_or_else(|| std::num::NonZeroUsize::new(25).unwrap());
         RawrDecider {
             acm_loader,
-            cache: Arc::new(RwLock::new(HashMap::new())),
+            cache: Arc::new(RwLock::new(LruCache::new(max_size))),
         }
     }
 }
 
-impl Decider for RawrDecider {
-    fn decide(
+impl<L: AcmLoader> Decider for RawrDecider<L> {
+    async fn decide(
         &self,
+        account_ksuid: &Ksuid,
         principal_ksuid: &Ksuid,
         action: &str,
         resource_path: &str,
     ) -> Result<bool, PdpError> {
         // check cache first
         let acm = {
-            let cache = self.cache.read().unwrap();
+            let mut cache = self.cache.write().unwrap();
             cache.get(principal_ksuid).cloned()
         };
 
@@ -48,11 +57,16 @@ impl Decider for RawrDecider {
             Some(cached) => cached,
             None => {
                 // pc load letter
-                let acm = Arc::new(self.acm_loader.load(principal_ksuid)?);
+                let acm = Arc::new(
+                    self.acm_loader
+                        .load(account_ksuid, principal_ksuid)
+                        .await
+                        .map_err(PdpError::from)?,
+                );
 
                 // thank u, next
                 let mut cache = self.cache.write().unwrap();
-                cache.insert(*principal_ksuid, acm.clone());
+                cache.put(*principal_ksuid, acm.clone());
 
                 acm
             }
@@ -74,93 +88,164 @@ mod tests {
     use rawr_pip::JsonPolicyLoader;
     use svix_ksuid::Ksuid;
 
+    const ACCOUNT_KSUID: &str = "365SmM3pnQ5Flegvk5nA7leI5KL";
     const ADMIN_KSUID: &str = "35zt2PT8xuykGfG83dEp5cZY4AM";
     const NETWORK_ADMIN_KSUID: &str = "35zt2PHzXp3K5VzHTNuTbTgYNSl";
     const HAHA_BUSINESS_KSUID: &str = "35zt2LD8MyWdngVgdr4Qaqcpesb";
 
-    #[test]
-    fn test_admin() {
+    #[tokio::test]
+    async fn test_admin() {
         let loader = JsonPolicyLoader::default();
-        let decider = RawrDecider::new(Box::new(loader));
+        let decider = RawrDecider::new(loader);
+        let account_ksuid = Ksuid::from_str(ACCOUNT_KSUID).unwrap();
         let principal_ksuid = Ksuid::from_str(ADMIN_KSUID).unwrap();
 
         // you know you want to. dont fight it, it's okay.
         assert!(
             decider
-                .decide(&principal_ksuid, "never:gonna", "give/you/up")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "never:gonna",
+                    "give/you/up"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "never:gonna", "let/you/down")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "never:gonna",
+                    "let/you/down"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "never:gonna", "run/around/and/desert/you")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "never:gonna",
+                    "run/around/and/desert/you"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "never:gonna", "say/goodbye")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "never:gonna",
+                    "say/goodbye"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "never:gonna", "tell/a/lie/and/hurt/you")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "never:gonna",
+                    "tell/a/lie/and/hurt/you"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "when:i", "was/a/young/boy")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "when:i",
+                    "was/a/young/boy"
+                )
+                .await
                 .unwrap()
         );
     }
 
-    #[test]
-    fn test_network_admin() {
+    #[tokio::test]
+    async fn test_network_admin() {
         let loader = JsonPolicyLoader::default();
-        let decider = RawrDecider::new(Box::new(loader));
+        let decider = RawrDecider::new(loader);
+        let account_ksuid = Ksuid::from_str(ACCOUNT_KSUID).unwrap();
         let principal_ksuid = Ksuid::from_str(NETWORK_ADMIN_KSUID).unwrap();
 
         assert!(
             decider
-                .decide(&principal_ksuid, "user:GetProfile", "user/nick")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "user:GetProfile",
+                    "user/nick"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "deploy:ListDeployments", "*")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "deploy:ListDeployments",
+                    "*"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             decider
-                .decide(&principal_ksuid, "network:CreateVLAN", "VLAN-20")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "network:CreateVLAN",
+                    "VLAN-20"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             !decider
-                .decide(&principal_ksuid, "network:DeleteVLAN", "mhq/VLAN-1")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "network:DeleteVLAN",
+                    "mhq/VLAN-1"
+                )
+                .await
                 .unwrap()
         );
         assert!(
             !decider
-                .decide(&principal_ksuid, "coffee:FillCup", "french-press")
+                .decide(
+                    &account_ksuid,
+                    &principal_ksuid,
+                    "coffee:FillCup",
+                    "french-press"
+                )
+                .await
                 .unwrap()
         );
     }
 
-    #[test]
-    fn test_haha_business() {
+    #[tokio::test]
+    async fn test_haha_business() {
         use rawr_pap::Role;
         use rawr_pip::AcmLoader;
         use std::fs;
 
         let loader = JsonPolicyLoader::default();
+        let account_ksuid = Ksuid::from_str(ACCOUNT_KSUID).unwrap();
         let principal_ksuid = Ksuid::from_str(HAHA_BUSINESS_KSUID).unwrap();
 
         let acm = loader
-            .load(&principal_ksuid)
+            .load(&account_ksuid, &principal_ksuid)
+            .await
             .expect("failed to load ACM for haha business");
 
         let file_path = format!("testdata/{}.json", HAHA_BUSINESS_KSUID);

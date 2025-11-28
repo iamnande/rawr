@@ -1,0 +1,20 @@
+[package]
+name = "rawr-db"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "migrate"
+path = "src/bin/migrate.rs"
+
+[dependencies]
+sqlx = { workspace = true }
+tokio = { workspace = true }
+svix-ksuid = { workspace = true }
+serde = { workspace = true }
+envconfig = { workspace = true }
+rawr-config = { path = "../rawr-config" }
+
+[features]
+default = []
+migrate = []
