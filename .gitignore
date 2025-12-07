@@ -1,1 +1,7 @@
+# no, you don't get to add whichever IDE or LLM flavor of the week config
+# file or directory to the project .gitignore. put that in your own
+# ~/.gitignore. see: https://git-scm.com/docs/gitignore#_name
+#
+# this file should only contain ignore patterns for files and directories that
+# are specific to the project.
 target/

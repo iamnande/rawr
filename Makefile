@@ -35,4 +35,3 @@ help: ## available targets
 .PHONY: version
 version: ## display version
 	@echo $(PROJECT_VERSION)
-

@@ -1,0 +1,24 @@
+[package]
+name = "rawr-resource-name"
+version = "0.1.0"
+description = """
+structured parsing, formatting, and validation for rawr-style resource names.
+"""
+edition = "2024"
+rust-version = "1.91.0"
+
+# -------------------------#
+# dependencies             #
+# -------------------------#
+[dependencies]
+thiserror = { version = "2.0.17" }
+
+[dev-dependencies]
+criterion = { version = "0.5.1" }
+
+# -------------------------#
+# do you like benchmarks?  #
+# -------------------------#
+[[bench]]
+name = "parse"
+harness = false
