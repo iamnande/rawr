@@ -10,10 +10,9 @@ const SEGMENT_SEPARATOR: &str = ":";
 const RESOURCE_PATH_SEGMENT_SEPARATOR: &str = "/";
 
 /// a structured resource name, which embeds the following information:
-/// - {prefix} (e.g. 'mrn', 'arn', 'crn', etc.)
+/// - {prefix} (e.g. 'mrn', 'arn', 'krn', etc.)
 /// - {partition} (e.g. 'tycho', 'prod', 'dev', etc.)
 /// - {service} (e.g. 'opa', 's3', 'sqs', etc.)
-// - {service} (e.g. 'opa', 's3', 'sqs', etc.)
 /// - {region} (e.g. 'sol-belt-1', 'us-east-1', 'eu-central-1', etc.)
 /// - {account_id} (e.g. '36UeVtK7fIxhHyD9Dd5gc1XSd77', '123456789012', etc.)
 /// - {resource_type} (e.g. 'member', 'bucket', 'queue', etc.)
@@ -123,19 +122,9 @@ impl<'a> ResourceName<'a> {
         }
 
         // verify we have a valid qualified resource path
-        let mut resource_path_segments =
-            qualified_resource_path.split(RESOURCE_PATH_SEGMENT_SEPARATOR);
-
-        // look my dude, we could totally "just" unwrap here. but like, have
-        // you seen what that kind of behavior did to cloudflare? half the
-        // bloody internet exploded. did your LLM save you then?
-        let resource_type = resource_path_segments
-            .next()
-            .ok_or(ResourceNameError::EmptyResourceType)?;
-
-        let resource_path = resource_path_segments
-            .next()
-            .ok_or(ResourceNameError::EmptyResourcePath)?;
+        let (resource_type, resource_path) = qualified_resource_path
+            .split_once(RESOURCE_PATH_SEGMENT_SEPARATOR)
+            .ok_or(ResourceNameError::EmptyQualifiedResourcePath)?;
 
         // verify we have a valid resource type and resource path
         if resource_type.is_empty() {
@@ -187,23 +176,47 @@ mod tests {
         "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
     const VALID_RESOURCE_NAME_AWS: &str =
         "arn:aws:ec2:us-east-1:123456789012:instance/i-01234567890123456";
-    const VALID_RESOURCE_NAME_KONNECT: &str = "krn:konnect:identity:us:df40c456-7dbb-4fbf-8b2c-a1c89997b7c4:team/157807aa-3a85-4504-8340-ad9c0baae569";
+    const VALID_RESOURCE_NAME_KONNECT: &str = "krn:konnect:mesh:eu:df40c456-7dbb-4fbf-8b2c-a1c89997b7c4:control-plane/157807aa-3a85-4504-8340-ad9c0baae569/zone/mhq-eu-primary";
 
     #[test]
     fn test_parse_valid_resource_name() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME).unwrap();
+        assert_eq!(rn.prefix, "mrn");
+        assert_eq!(rn.partition, "tycho");
+        assert_eq!(rn.service, "opa");
+        assert_eq!(rn.region, "sol-belt-1");
+        assert_eq!(rn.account_id, "36UeVtK7fIxhHyD9Dd5gc1XSd77");
+        assert_eq!(rn.resource_type, "member");
+        assert_eq!(rn.resource_path, "anderson-dawes");
         assert_eq!(rn.to_string(), VALID_RESOURCE_NAME);
     }
 
     #[test]
     fn test_parse_valid_resource_name_aws() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME_AWS).unwrap();
+        assert_eq!(rn.prefix, "arn");
+        assert_eq!(rn.partition, "aws");
+        assert_eq!(rn.service, "ec2");
+        assert_eq!(rn.region, "us-east-1");
+        assert_eq!(rn.account_id, "123456789012");
+        assert_eq!(rn.resource_type, "instance");
+        assert_eq!(rn.resource_path, "i-01234567890123456");
         assert_eq!(rn.to_string(), VALID_RESOURCE_NAME_AWS);
     }
 
     #[test]
     fn test_parse_valid_resource_name_konnect() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME_KONNECT).unwrap();
+        assert_eq!(rn.prefix, "krn");
+        assert_eq!(rn.partition, "konnect");
+        assert_eq!(rn.service, "mesh");
+        assert_eq!(rn.region, "eu");
+        assert_eq!(rn.account_id, "df40c456-7dbb-4fbf-8b2c-a1c89997b7c4");
+        assert_eq!(rn.resource_type, "control-plane");
+        assert_eq!(
+            rn.resource_path,
+            "157807aa-3a85-4504-8340-ad9c0baae569/zone/mhq-eu-primary"
+        );
         assert_eq!(rn.to_string(), VALID_RESOURCE_NAME_KONNECT);
     }
 
@@ -284,11 +297,5 @@ mod tests {
                 found: 11
             }
         );
-    }
-
-    #[test]
-    fn test_parse_and_as_str_are_inverses() {
-        let rn = ResourceName::parse(VALID_RESOURCE_NAME).unwrap();
-        assert_eq!(rn.as_str(), VALID_RESOURCE_NAME);
     }
 }

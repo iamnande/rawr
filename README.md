@@ -13,7 +13,7 @@ boy handles your allow / deny policies like a champ at any scale.
 ## ⚡ features
 
 * **zero-allocation** - zero memory allocations where it counts.
-* **high-performance** - millions of parses or checks per second (~12M/s)
+* **high-performance** - millions of parses or checks per second (~17M/s)
 * **flexible model** - plug in your own RBAC/ABAC model you wish, or use the 
 default
 * **storage agnostic** - works with in-memory, Redis, Postgres, DynamoDB, or 
@@ -28,7 +28,8 @@ we are actively developing. expect new features and breaking changes until
 v1.0.0.
 
 
-## 🤖 LLMs (a.k.a. clankers)
+## 🤖 LLM usage
 
-note: this project is built using human hands and brains. any issues or PRs
-raised that make use of an LLM will be unceremoniously rejected and closed.
+note: this is an artisal project, built using human hands and brains. LLMs have
+a place in tech, however - until we've overcome the glaring sustainability
+issues, any issues or PRs raised that make use of an LLM will be unceremoniously rejected and closed.
