@@ -13,7 +13,7 @@ boy handles your allow / deny policies like a champ at any scale.
 ## ⚡ features
 
 * **zero-allocation** - zero memory allocations where it counts.
-* **high-performance** - millions of parses or checks per second (~20M/s)
+* **high-performance** - millions of parses or checks per second (~20M/s per core)
 * **flexible model** - plug in your own RBAC/ABAC model you wish, or use the 
 default
 * **storage agnostic** - works with in-memory, Redis, Postgres, DynamoDB, or 
