@@ -6,29 +6,27 @@ use thiserror::Error;
 // dawg" and a little more sad, er - professional. at some point, eventually.
 #[derive(Debug, Error, PartialEq)]
 pub enum ResourceNameError {
-    #[error("yo dawg, you just straight up forgot to provide a resource name")]
+    #[error("resource name is empty")]
     Empty,
 
-    #[error(
-        "yo dawg, you provided an invalid number of resource name segments; expected {expected} segments, found {found}"
-    )]
+    #[error("invalid resource name segment count: expected {expected} segments, found {found}")]
     InvalidSegmentCount { expected: usize, found: usize },
 
-    #[error("yo dawg, you forgot to provide a valid prefix")]
+    #[error("missing resource name prefix")]
     EmptyPrefix,
 
-    #[error("yo dawg, you forgot to provide a valid partition")]
+    #[error("missing partition in resource name")]
     EmptyPartition,
 
-    #[error("yo dawg, you forgot to provide a valid service")]
+    #[error("missing service in resource name")]
     EmptyService,
 
-    #[error("yo dawg, you forgot to provide a valid qualified resource path")]
+    #[error("missing qualified resource path")]
     EmptyQualifiedResourcePath,
 
-    #[error("yo dawg, you forgot to provide a valid resource type")]
+    #[error("missing resource type")]
     EmptyResourceType,
 
-    #[error("yo dawg, you forgot to provide a valid resource path")]
+    #[error("missing resource path")]
     EmptyResourcePath,
 }

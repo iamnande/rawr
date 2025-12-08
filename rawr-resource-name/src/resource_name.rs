@@ -179,7 +179,7 @@ mod tests {
     const VALID_RESOURCE_NAME_KONNECT: &str = "krn:konnect:mesh:eu:df40c456-7dbb-4fbf-8b2c-a1c89997b7c4:control-plane/157807aa-3a85-4504-8340-ad9c0baae569/zone/mhq-eu-primary";
 
     #[test]
-    fn test_parse_valid_resource_name() {
+    fn parse_valid_resource_name() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME).unwrap();
         assert_eq!(rn.prefix, "mrn");
         assert_eq!(rn.partition, "tycho");
@@ -192,7 +192,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_valid_resource_name_aws() {
+    fn parse_valid_resource_name_aws() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME_AWS).unwrap();
         assert_eq!(rn.prefix, "arn");
         assert_eq!(rn.partition, "aws");
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_valid_resource_name_konnect() {
+    fn parse_valid_resource_name_konnect() {
         let rn = ResourceName::parse(VALID_RESOURCE_NAME_KONNECT).unwrap();
         assert_eq!(rn.prefix, "krn");
         assert_eq!(rn.partition, "konnect");
@@ -221,7 +221,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_invalid_number_of_segments() {
+    fn parse_resource_name_with_invalid_number_of_segments() {
         let s = "mrn:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -235,7 +235,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_empty_prefix() {
+    fn parse_resource_name_with_empty_prefix() {
         let s = ":tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -243,7 +243,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_empty_partition() {
+    fn parse_resource_name_with_empty_partition() {
         let s = "mrn::opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -251,7 +251,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_empty_service() {
+    fn parse_resource_name_with_empty_service() {
         let s = "mrn:tycho::sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -259,7 +259,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_invalid_qualified_resource_path() {
+    fn parse_resource_name_with_invalid_qualified_resource_path() {
         let s = "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -270,7 +270,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_empty_resource_type() {
+    fn parse_resource_name_with_empty_resource_type() {
         let s = "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:/anderson-dawes";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -278,7 +278,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_empty_resource_path() {
+    fn parse_resource_name_with_empty_resource_path() {
         let s = "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/";
         let result = ResourceName::parse(s);
         assert!(result.is_err());
@@ -286,7 +286,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_resource_name_with_extra_segments() {
+    fn parse_resource_name_with_extra_segments() {
         let s = "mrn:foo:tycho:bar:opa:baz:sol-belt-1:buzz:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes:extra";
         let result = ResourceName::parse(s);
         assert!(result.is_err());

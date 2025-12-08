@@ -1,0 +1,15 @@
+[package]
+name = "rawr-core"
+version = "0.1.0"
+description = """
+core primitives for the entire rawr ecosystem.
+"""
+edition = "2024"
+rust-version = "1.91.0"
+
+# -------------------------#
+# dependencies             #
+# -------------------------#
+[dependencies]
+async-trait = { version = "0.1.89" }
+svix-ksuid = { version = "0.8.0" }

@@ -1,0 +1,15 @@
+[package]
+name = "rawr-error"
+version = "0.1.0"
+description = """
+centralized error types and handling for the rawr ecosystem.
+"""
+edition = "2024"
+rust-version = "1.91.0"
+
+# -------------------------#
+# dependencies             #
+# -------------------------#
+[dependencies]
+thiserror = { version = "2.0.17" }
+rawr-resource-name = { path = "../rawr-resource-name" }

@@ -21,7 +21,8 @@ PROJECT_VERSION ?= 0.1.0$(VCS_IS_DIRTY)
 PROJECT_SLUG    := $(OWNER_NAME)-$(PROJECT_NAME)-$(PROJECT_VERSION)
 
 # modules
-include mk/lang-rust.mk
+include mk/log.mk
+include mk/dev.mk
 
 .PHONY: help
 help: ## available targets
