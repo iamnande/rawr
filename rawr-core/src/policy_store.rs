@@ -51,23 +51,21 @@ pub struct DeletePolicyResponse {}
 pub trait PolicyStore: Send + Sync {
     type Error: std::error::Error + Send + Sync + 'static;
 
-    /// list policies for a given principal_id, and optionally filter by a
-    /// tenant_id. if tenant_id is None, list policies across all tenants for
-    /// the principal.
+    /// list policies for a principal.
     async fn list_policies(
         &self,
         request: ListPoliciesRequest,
     ) -> Result<ListPoliciesResponse, Self::Error>;
 
-    /// get a specific policy by its id, optionally filtered by tenant_id.
+    /// get a specific policy by its id.
     async fn get_policy(&self, request: GetPolicyRequest)
     -> Result<GetPolicyResponse, Self::Error>;
 
-    /// add a policy to a principal, optionally scoped to a tenant.
+    /// add a policy to a principal.
     async fn add_policy(&self, request: AddPolicyRequest)
     -> Result<AddPolicyResponse, Self::Error>;
 
-    /// remove a policy from a principal, optionally scoped to a tenant.
+    /// remove a policy from a principal.
     async fn delete_policy(
         &self,
         request: DeletePolicyRequest,
