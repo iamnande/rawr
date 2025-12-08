@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::PolicyId;
+use crate::RawrId;
 
 /// the effect of a policy statement determines whether the statement
 /// explicitly allows or denies the requested operation.
@@ -14,7 +14,7 @@ pub enum Effect {
 /// principals (users, groups, roles).
 pub trait Policy: Send + Sync {
     /// unique identifier for the policy
-    fn id(&self) -> PolicyId;
+    fn id(&self) -> RawrId;
 
     /// name of the policy
     fn name(&self) -> &str;

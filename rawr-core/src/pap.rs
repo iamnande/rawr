@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::sync::Arc;
 
-use crate::{Policy, PolicyId, PrincipalId, TenantId};
+use crate::{Policy, PrincipalId, RawrId, TenantId};
 
 pub struct ListPoliciesRequest {
     pub tenant_id: TenantId,
@@ -14,7 +14,7 @@ pub struct ListPoliciesResponse {
 
 pub struct GetPolicyRequest {
     pub tenant_id: TenantId,
-    pub policy_id: PolicyId,
+    pub policy_id: RawrId,
 }
 
 pub struct GetPolicyResponse {
@@ -32,7 +32,7 @@ pub struct AddPolicyResponse {}
 pub struct DeletePolicyRequest {
     pub tenant_id: TenantId,
     pub principal_id: PrincipalId,
-    pub policy_id: PolicyId,
+    pub policy_id: RawrId,
 }
 
 pub struct DeletePolicyResponse {}
@@ -48,7 +48,7 @@ pub struct DeletePolicyResponse {}
 /// available at the type-level in future iterations to help enforce this for
 /// those who do wish for a guaranteed multi-tenant interface.
 #[async_trait]
-pub trait PolicyStore: Send + Sync {
+pub trait PolicyAdministrationPoint: Send + Sync {
     type Error: std::error::Error + Send + Sync + 'static;
 
     /// list policies for a principal.

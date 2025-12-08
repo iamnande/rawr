@@ -10,9 +10,9 @@ pub type PrincipalId = String;
 /// single-tenant implementations. there's like, no rules here dude.
 pub type TenantId = Option<String>;
 
-/// unique identifier for policies.
+/// unique identifier for rawr resources.
 /// globally unique and sorted strings is a cornerstone of many rawr data
 /// models. ksuids are impecable for this use-case. using ksuids allows us to
 /// balance highly-performant, globally unique identifiers without forcing too
 /// many implementation specific contraints onto callers.
-pub type PolicyId = Ksuid;
+pub type RawrId = Ksuid;

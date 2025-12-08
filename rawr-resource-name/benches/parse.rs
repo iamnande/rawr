@@ -11,11 +11,13 @@ const VALID_RESOURCE_NAME_EMPTY_REGION_AND_ACCOUNT_ID: &str =
 const VALID_RESOURCE_NAME_WITH_MULTI_SEGMENT_RESOURCE_PATH: &str =
     "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:station/ceres/bay-12";
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn bench_valid_resource_name(c: &mut Criterion) {
     c.bench_function("parse resource name", |b| {
         b.iter(|| ResourceName::parse(black_box(VALID_RESOURCE_NAME)))
     });
+}
 
+fn bench_valid_resource_name_with_empty_region_and_account_id(c: &mut Criterion) {
     c.bench_function(
         "parse resource name with empty region and account id",
         |b| {
@@ -24,7 +26,9 @@ fn criterion_benchmark(c: &mut Criterion) {
             })
         },
     );
+}
 
+fn bench_valid_resource_name_with_multi_segment_resource_path(c: &mut Criterion) {
     c.bench_function(
         "parse resource name with multi-segment resource path",
         |b| {
@@ -37,5 +41,10 @@ fn criterion_benchmark(c: &mut Criterion) {
     );
 }
 
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(
+    benches,
+    bench_valid_resource_name,
+    bench_valid_resource_name_with_empty_region_and_account_id,
+    bench_valid_resource_name_with_multi_segment_resource_path
+);
 criterion_main!(benches);

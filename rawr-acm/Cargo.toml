@@ -1,0 +1,24 @@
+[package]
+name = "rawr-acm"
+version = "0.1.0"
+description = """
+rawr's trie'd and true'd access control model.
+"""
+edition = "2024"
+rust-version = "1.91.0"
+
+# -------------------------#
+# dependencies             #
+# -------------------------#
+[dependencies]
+globset = "0.4"
+
+[dev-dependencies]
+criterion = { version = "0.5.1" }
+
+# -------------------------#
+# do you like benchmarks?  #
+# -------------------------#
+[[bench]]
+name = "acm"
+harness = false
