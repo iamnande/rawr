@@ -41,4 +41,4 @@ profile-acm: ## run the ACM profiling example
 	@$(call log,"building ACM profiling benchmark")
 	@cargo build --release --example profile_acm -p rawr-acm
 	@$(call log,"profiling ACM - baseline category")
-	@samply record cargo run --release --example profile_acm -p rawr-acm -- baseline
+	@samply record --save-only -o profile-acm.json cargo run --release --example profile_acm -p rawr-acm -- baseline

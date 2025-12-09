@@ -5,3 +5,4 @@
 # this file should only contain ignore patterns for files and directories that
 # are specific to the project.
 target/
+profile-acm.json
