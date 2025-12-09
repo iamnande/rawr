@@ -6,12 +6,12 @@ lint: ## run clippy linter
 .PHONY: format
 format: ## fix code formatting
 	@$(call log,"formatting the workspace")
-	@cargo fmt --all
+	@cargo fmt --verbose --all
 
 .PHONY: format-check
 format-check: ## check code formatting
 	@$(call log,"checking code formatting")
-	@cargo fmt --all -- --check
+	@cargo fmt --verbose --all -- --check
 
 .PHONY: build
 build: ## build all targets
@@ -26,7 +26,7 @@ test: ## run all tests
 .PHONY: bench 
 bench: ## run benchmark tests
 	@$(call log,"running benchmark tests")
-	@cargo bench
+	@cargo bench --verbose
 
 .PHONY: clean
 clean: ## clean build artifacts
@@ -35,3 +35,12 @@ clean: ## clean build artifacts
 
 .PHONY: ci
 ci: lint format-check build test bench ## run all CI checks
+
+.PHONY: profile-acm
+profile-acm: ## run the ACM profiling example
+	@$(call log,"building ACM profiling benchmark")
+	@cargo build --release --example profile_acm -p rawr-acm
+	@$(call log,"profiling ACM - baseline category")
+	@mkdir -p target/profiles
+	@samply record --save-only -o target/profiles/acm.json cargo run --release --example profile_acm -p rawr-acm -- baseline
+	@samply load target/profiles/acm.json
