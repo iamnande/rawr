@@ -11,7 +11,7 @@ format: ## fix code formatting
 .PHONY: format-check
 format-check: ## check code formatting
 	@$(call log,"checking code formatting")
-	@cargo fmt --all -- --check
+	@cargo fmt --all --verbose -- --check
 
 .PHONY: build
 build: ## build all targets
@@ -26,7 +26,7 @@ test: ## run all tests
 .PHONY: bench 
 bench: ## run benchmark tests
 	@$(call log,"running benchmark tests")
-	@cargo bench
+	@cargo bench --verbose
 
 .PHONY: clean
 clean: ## clean build artifacts
@@ -35,3 +35,10 @@ clean: ## clean build artifacts
 
 .PHONY: ci
 ci: lint format-check build test bench ## run all CI checks
+
+.PHONY: profile-acm
+profile-acm: ## run the ACM profiling example
+	@$(call log,"building ACM profiling benchmark")
+	@cargo build --release --example profile_acm -p rawr-acm
+	@$(call log,"profiling ACM - baseline category")
+	@samply record cargo run --release --example profile_acm -p rawr-acm -- baseline
