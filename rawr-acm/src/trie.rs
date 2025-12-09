@@ -153,7 +153,7 @@ impl Trie {
         node.terminal = true
     }
 
-    pub(crate) fn contains<'a>(&self, segments: &SmallVec<[&'a str; STACK_CAPACITY]>) -> bool {
+    pub(crate) fn contains(&self, segments: &SmallVec<[&str; STACK_CAPACITY]>) -> bool {
         self.root.contains(segments)
     }
 }
