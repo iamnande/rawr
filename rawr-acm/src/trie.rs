@@ -1,7 +1,14 @@
 use globset::{Glob, GlobMatcher};
+use smallvec::SmallVec;
 
 const WILDCARD: &str = "*";
 const ROOT_PATTERN: &str = ".";
+
+// this sets the capacity of the SmallVec-based stack used in
+// `TrieNode::contains`. requests which have more than 10 segments will incur
+// a heap allocation for the stack, but we'll use data to inform just how much
+// of the 20% we need to tackle - and when.
+pub(crate) const STACK_CAPACITY: usize = 10;
 
 #[derive(Debug)]
 pub(crate) enum NodePattern {
@@ -81,8 +88,15 @@ impl TrieNode {
 
     // this is the real workhorse. like imagine if spirit _did_ break; just
     // luggin trains up mountains and shit? dawg that's obscene.
-    pub(crate) fn contains(&self, segments: &[&str]) -> bool {
-        let mut stack = Vec::with_capacity(segments.len());
+    pub(crate) fn contains<'a, S>(&self, segments: &S) -> bool
+    where
+        S: AsRef<[&'a str]>,
+    {
+        let segments = segments.as_ref();
+        // SmallVec is the OG that likes some stack with their stack
+        // so they can stack while they stack the stacks deep in the foothills
+        // of the great stackistan.
+        let mut stack: SmallVec<[(&TrieNode, usize); STACK_CAPACITY]> = SmallVec::new();
         stack.push((self, 0));
 
         // shift(@stack) - *sigh*, dawg i miss Perl
@@ -142,7 +156,7 @@ impl Trie {
         node.terminal = true
     }
 
-    pub(crate) fn contains(&self, segments: &[&str]) -> bool {
+    pub(crate) fn contains(&self, segments: &SmallVec<[&str; STACK_CAPACITY]>) -> bool {
         self.root.contains(segments)
     }
 }
