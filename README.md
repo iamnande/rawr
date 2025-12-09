@@ -26,10 +26,3 @@ custom stores.
 
 we are actively developing. expect new features and breaking changes until 
 v1.0.0.
-
-
-## 🤖 LLM usage
-
-note: this is an artisal project, built using human hands and brains. LLMs have
-a place in tech, however - until we've overcome the glaring sustainability
-issues, any issues or PRs raised that make use of an LLM will be unceremoniously rejected and closed.
