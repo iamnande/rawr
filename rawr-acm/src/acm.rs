@@ -1,4 +1,6 @@
-use crate::trie::Trie;
+use smallvec::SmallVec;
+
+use crate::trie::{STACK_CAPACITY, Trie};
 
 const ACTION_SEPARATOR: &str = ":";
 const RESOURCE_SEPARATOR: &str = "/";
@@ -40,8 +42,8 @@ impl Acm {
     }
 
     pub fn enforce(&self, action: &str, resource_path: &str) -> bool {
-        // cut my life into pieces
-        let segments: Vec<&str> = action
+        // cut my life into pieces - collect once, reuse twice
+        let segments: SmallVec<[&str; STACK_CAPACITY]> = action
             .split(ACTION_SEPARATOR)
             .chain(resource_path.split(RESOURCE_SEPARATOR))
             .collect();
@@ -53,6 +55,25 @@ impl Acm {
 
         // okay, now check "the list"
         self.allow.contains(&segments)
+    }
+
+    pub fn enforce_batch(&self, requests: &[(&str, &str)]) -> Vec<bool> {
+        let mut results = Vec::with_capacity(requests.len());
+        let mut segments: SmallVec<[&str; STACK_CAPACITY]> = SmallVec::new();
+
+        for (action, resource_path) in requests {
+            segments.clear();
+            segments.extend(
+                action
+                    .split(ACTION_SEPARATOR)
+                    .chain(resource_path.split(RESOURCE_SEPARATOR)),
+            );
+
+            let granted = !self.deny.contains(&segments) && self.allow.contains(&segments);
+            results.push(granted);
+        }
+
+        results
     }
 }
 
@@ -75,5 +96,21 @@ mod tests {
         acm.deny("action:Delete", "resource/sensitive");
         assert!(acm.enforce("action:Get", "resource/normal"));
         assert!(!acm.enforce("action:Delete", "resource/sensitive"));
+    }
+
+    #[test]
+    fn test_enforce_batch() {
+        let mut acm = Acm::new();
+        acm.allow("action:Get", "resource/*");
+        acm.deny("action:Delete", "resource/protected");
+
+        let results = acm.enforce_batch(&[
+            ("action:Get", "resource/foo"),          // allow match
+            ("action:Delete", "resource/bar"),       // no allow
+            ("action:Delete", "resource/protected"), // explicit deny
+            ("action:Get", "resource/protected"),    // allow match
+        ]);
+
+        assert_eq!(results, vec![true, false, false, true]);
     }
 }
