@@ -16,18 +16,18 @@ jobs:
       run: cargo +nightly bench | tee output.txt
 
     - name: Compare Benchmark Results
-     uses: benchmark-action/github-action-benchmark@v1
-     with:
-       name: Rust Benchmark
-       tool: 'cargo'
-       output-file-path: target/bench/output.txt
-       github-token: ${{ secrets.GITHUB_TOKEN }}
-       auto-push: false
-       comment-always: true
-       alert-threshold: '200%'
-       comment-on-alert: true
-       fail-on-alert: true
-       alert-comment-cc-users: '@iamnande'
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Rust Benchmark
+        tool: 'cargo'
+        output-file-path: target/bench/output.txt
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: false
+        comment-always: true
+        alert-threshold: '200%'
+        comment-on-alert: true
+        fail-on-alert: true
+        alert-comment-cc-users: '@iamnande'
   build:
     runs-on: ubuntu-22.04
 
