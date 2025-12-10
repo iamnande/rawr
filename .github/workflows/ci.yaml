@@ -9,13 +9,30 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
       with:
-        toolchain: stable
+        toolchain: nightly
         profile: minimal
         override: true
 
     - name: Checks
       run: make clean ci
+
+    - name: Benchmark
+      run: make bench
+
+    - name: Compare Benchmark Results
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Rust Benchmark
+        tool: 'cargo'
+        output-file-path: target/bench/output.txt
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: false
+        comment-always: true
+        alert-threshold: '200%'
+        comment-on-alert: true
+        fail-on-alert: true
+        alert-comment-cc-users: '@iamnande'

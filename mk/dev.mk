@@ -26,7 +26,7 @@ test: ## run all tests
 .PHONY: bench 
 bench: ## run benchmark tests
 	@$(call log,"running benchmark tests")
-	@cargo bench --verbose
+	@cargo bench --verbose | tee target/bench/output.txt
 
 .PHONY: clean
 clean: ## clean build artifacts
@@ -34,7 +34,7 @@ clean: ## clean build artifacts
 	@cargo clean
 
 .PHONY: ci
-ci: lint format-check build test bench ## run all CI checks
+ci: lint format-check build test ## run all CI checks
 
 .PHONY: profile-acm
 profile-acm: ## run the ACM profiling example

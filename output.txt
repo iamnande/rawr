@@ -1,0 +1,86 @@
+
+running 2 tests
+test acm::tests::test_allow_and_enforce ... ignored
+test acm::tests::test_deny_overrides_allow ... ignored
+
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+acm enforce simple allow
+                        time:   [125.85 ns 126.75 ns 127.61 ns]
+                        change: [-0.9832% +0.1503% +1.2490%] (p = 0.79 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+acm enforce deny override
+                        time:   [104.27 ns 106.36 ns 108.47 ns]
+                        change: [-6.5894% -4.9725% -3.2767%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+acm enforce wildcard glob
+                        time:   [152.76 ns 154.03 ns 155.62 ns]
+                        change: [-1.7863% -0.8099% +0.2812%] (p = 0.12 > 0.05)
+                        No change in performance detected.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+acm deep path match     time:   [260.07 ns 262.99 ns 266.08 ns]
+                        change: [-3.6382% -1.3680% +1.0069%] (p = 0.26 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test error::tests::error_wrapping ... ignored
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 11 tests
+test resource_name::tests::parse_resource_name_with_empty_partition ... ignored
+test resource_name::tests::parse_resource_name_with_empty_prefix ... ignored
+test resource_name::tests::parse_resource_name_with_empty_resource_path ... ignored
+test resource_name::tests::parse_resource_name_with_empty_resource_type ... ignored
+test resource_name::tests::parse_resource_name_with_empty_service ... ignored
+test resource_name::tests::parse_resource_name_with_extra_segments ... ignored
+test resource_name::tests::parse_resource_name_with_invalid_number_of_segments ... ignored
+test resource_name::tests::parse_resource_name_with_invalid_qualified_resource_path ... ignored
+test resource_name::tests::parse_valid_resource_name ... ignored
+test resource_name::tests::parse_valid_resource_name_aws ... ignored
+test resource_name::tests::parse_valid_resource_name_konnect ... ignored
+
+test result: ok. 0 passed; 0 failed; 11 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+parse resource name     time:   [67.716 ns 67.924 ns 68.116 ns]
+                        change: [-0.5178% -0.0730% +0.3714%] (p = 0.75 > 0.05)
+                        No change in performance detected.
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+
+parse resource name with empty region and account id
+                        time:   [48.348 ns 48.487 ns 48.631 ns]
+                        change: [-0.2619% +0.2349% +0.7278%] (p = 0.37 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+parse resource name with multi-segment resource path
+                        time:   [69.021 ns 69.441 ns 70.056 ns]
+                        change: [+0.2029% +0.8905% +1.7486%] (p = 0.02 < 0.05)
+                        Change within noise threshold.
+Found 9 outliers among 100 measurements (9.00%)
+  5 (5.00%) high mild
+  4 (4.00%) high severe
+
