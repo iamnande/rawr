@@ -25,7 +25,8 @@ fn main() {
 
 fn bench_baseline_resource_name() {
     const ITERATIONS: usize = 1_000_000;
-    const RESOURCE_NAME: &str = "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
+    const RESOURCE_NAME: &str =
+        "mrn:tycho:opa:sol-belt-1:36UeVtK7fIxhHyD9Dd5gc1XSd77:member/anderson-dawes";
 
     for _idx in 0..ITERATIONS {
         ResourceName::parse(RESOURCE_NAME).unwrap();
