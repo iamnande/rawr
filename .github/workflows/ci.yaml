@@ -13,7 +13,7 @@ jobs:
 
     - uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
       with:
-        toolchain: nightly
+        toolchain: stable
         profile: minimal
         override: true
 
