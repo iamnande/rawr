@@ -26,7 +26,8 @@ test: ## run all tests
 .PHONY: bench 
 bench: ## run benchmark tests
 	@$(call log,"running benchmark tests")
-	@cargo bench --verbose | tee target/bench/output.txt
+	@mkdir -p target/bench
+	@cargo bench 2>&1 | tee target/bench/output.txt
 
 .PHONY: clean
 clean: ## clean build artifacts
