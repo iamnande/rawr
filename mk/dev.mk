@@ -27,7 +27,7 @@ test: ## run all tests
 bench: ## run benchmark tests
 	@$(call log,"running benchmark tests")
 	@mkdir -p target/bench
-	@cargo bench 2>&1 | tee target/bench/output.txt
+	@cargo bench | tee target/bench/output.txt
 
 .PHONY: clean
 clean: ## clean build artifacts
@@ -45,3 +45,12 @@ profile-acm: ## run the ACM profiling example
 	@mkdir -p target/profiles
 	@samply record --save-only -o target/profiles/acm.json cargo run --release --example profile_acm -p rawr-acm -- baseline
 	@samply load target/profiles/acm.json
+
+.PHONY: profile-rn
+profile-rn: ## run the ResourceName profiling example
+	@$(call log,"building ResourceName profiling benchmark")
+	@cargo build --release --example profile_rn -p rawr-resource-name
+	@$(call log,"profiling ResourceName - baseline category")
+	@mkdir -p target/profiles
+	@samply record --save-only -o target/profiles/rn.json cargo run --release --example profile_rn -p rawr-resource-name -- baseline
+	@samply load target/profiles/rn.json
