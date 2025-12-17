@@ -23,16 +23,17 @@ PROJECT_SLUG    := $(OWNER_NAME)-$(PROJECT_NAME)-$(PROJECT_VERSION)
 # modules
 include mk/log.mk
 include mk/dev.mk
+include mk/qa.mk
 
 .PHONY: help
-help: ## available targets
-	@echo -e "${COLOR_GREEN}=================================================================================${COLOR_NONE}"
+help: ## help: display available targets
+	@echo -e "${COLOR_GREEN}================================================================================${COLOR_NONE}"
 	@echo -e "                    [ ${COLOR_MAGENTA}$(OWNER_NAME)${COLOR_YELLOW}/${COLOR_MAGENTA}$(PROJECT_NAME) ${COLOR_NONE} - ${COLOR_MAGENTA}$(PROJECT_VERSION)${COLOR_NONE} ] "
-	@echo -e "${COLOR_GREEN}=================================================================================${COLOR_NONE}"
-	@grep -h -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort -k1 | \
+	@echo -e "${COLOR_GREEN}================================================================================${COLOR_NONE}"
+	@grep -h -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "} \
-		{printf "${COLOR_CYAN}%-12s${COLOR_NONE} %s %s\n", $$1, "    ..................................    ", $$2}'
+		{printf "${COLOR_CYAN}%-35s${COLOR_NONE} %s %s\n", $$1, "     ", $$2}'
 
 .PHONY: version
-version: ## display version
+version: ## help: display version
 	@echo $(PROJECT_VERSION)

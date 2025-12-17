@@ -40,36 +40,42 @@ impl TrieNode {
         }
     }
 
+    pub(crate) fn get_or_insert_literal(&mut self, segment_pattern: &str) -> &mut TrieNode {
+        match self
+            .literal_children
+            .binary_search_by(|(key, _)| key.as_str().cmp(segment_pattern))
+        {
+            Ok(idx) => &mut self.literal_children[idx].1,
+            Err(idx) => {
+                let new_node = TrieNode::new(NodePattern::Literal, segment_pattern);
+                self.literal_children
+                    .insert(idx, (segment_pattern.to_string(), new_node));
+                &mut self.literal_children[idx].1
+            }
+        }
+    }
+
+    pub(crate) fn get_or_insert_glob(&mut self, segment_pattern: &str) -> &mut TrieNode {
+        if let Some(idx) = self
+            .glob_children
+            .iter()
+            .position(|c| c.raw_pattern == segment_pattern)
+        {
+            &mut self.glob_children[idx]
+        } else {
+            let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
+            let new_node = TrieNode::new(NodePattern::Glob(pattern), segment_pattern);
+            self.glob_children.push(new_node);
+            let last_idx = self.glob_children.len() - 1;
+            &mut self.glob_children[last_idx]
+        }
+    }
+
     pub(crate) fn insert_segment(&mut self, segment_pattern: &str) -> &mut TrieNode {
         if !segment_pattern.contains(WILDCARD) {
-            // Literal segment
-            match self
-                .literal_children
-                .binary_search_by(|(key, _)| key.as_str().cmp(segment_pattern))
-            {
-                Ok(idx) => &mut self.literal_children[idx].1,
-                Err(idx) => {
-                    let new_node = TrieNode::new(NodePattern::Literal, segment_pattern);
-                    self.literal_children
-                        .insert(idx, (segment_pattern.to_string(), new_node));
-                    &mut self.literal_children[idx].1
-                }
-            }
+            self.get_or_insert_literal(segment_pattern)
         } else {
-            // Glob segment
-            if let Some(idx) = self
-                .glob_children
-                .iter()
-                .position(|c| c.raw_pattern == segment_pattern)
-            {
-                &mut self.glob_children[idx]
-            } else {
-                let pattern = Glob::new(segment_pattern).unwrap().compile_matcher();
-                let new_node = TrieNode::new(NodePattern::Glob(pattern), segment_pattern);
-                self.glob_children.push(new_node);
-                let last_idx = self.glob_children.len() - 1;
-                &mut self.glob_children[last_idx]
-            }
+            self.get_or_insert_glob(segment_pattern)
         }
     }
 
@@ -83,10 +89,7 @@ impl TrieNode {
         while let Some((node, idx)) = stack.pop() {
             // end of the road, bucko
             if idx == segments.len() {
-                if node.terminal {
-                    return true;
-                }
-                continue;
+                return node.terminal;
             }
 
             // uhm, like - do you even work here?
