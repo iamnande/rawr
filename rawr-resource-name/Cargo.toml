@@ -14,7 +14,7 @@ rust-version = "1.91.0"
 thiserror = { version = "2.0.17" }
 
 [dev-dependencies]
-criterion = { version = "0.5.1" }
+criterion = { version = "0.5.1", features = ["html_reports"] }
 
 # -------------------------#
 # do you like benchmarks?  #

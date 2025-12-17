@@ -1,21 +1,64 @@
 name: Continuous Integration
 
 on:
-  pull_request:
-    branches: [main]
+  pull_request: {}
+
+env:
+  # Disable incremental compilation.
+  #
+  # Incremental compilation is useful as part of an edit-build-test-edit cycle,
+  # as it lets the compiler avoid recompiling code that hasn't changed. 
+  # However, on CI, we're not making small edits; we're almost always building
+  # the entire project from scratch. Thus, incremental compilation on CI
+  # actually introduces *additional* overhead to support making future builds
+  # faster...but no future builds will ever occur in any given CI environment.
+  #
+  # See https://matklad.github.io/2021/09/04/fast-rust-builds.html#ci-workflow
+  # for details.
+  CARGO_INCREMENTAL: 0
+  # because GitHub is now basically Microsoft...
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+  # keep our failures informative, without cluttering logs too much
+  RUST_BACKTRACE: short
 
 jobs:
-  build:
+  # do we even compile?
+  check:
+    name: check
     runs-on: ubuntu-22.04
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - name: check
+      run: make check
 
-    - uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
+  # do we look cute when we compile?
+  style:
+    name: style
+    needs: check
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
-        profile: minimal
-        override: true
+        components: rustfmt
+    - name: lint
+      run: make lint
+    - name: style
+      run: make format-check
 
-    - name: Checks
-      run: make clean ci
+  # does it profess to work?
+  test:
+    name: test
+    needs: check
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - name: install nextest
+      uses: taiki-e/install-action@nextest
+    - name: test
+      run: make test
+    - name: doctests
+      run: make test-docs
