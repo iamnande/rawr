@@ -12,6 +12,7 @@ rust-version = "1.91.0"
 # -------------------------#
 [dependencies]
 globset = "0.4"
+smallvec = "1.13"
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
